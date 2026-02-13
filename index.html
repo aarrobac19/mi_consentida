@@ -1,0 +1,551 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <title>Love You by AlexDev</title>
+    <link rel="icon" type="image/x-icon" href="Love_files/icon.png">
+    <meta name="language" content="es-ES">
+    <meta name="title" content="title">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Lato:wght@300;400&display=swap" rel="stylesheet">
+    <link type="text/css" rel="stylesheet" href="./Love_files/default.css">
+    <script type="text/javascript" src="./Love_files/jquery.min.js"></script>
+    <script type="text/javascript" src="./Love_files/jscex.min.js"></script>
+    <script type="text/javascript" src="./Love_files/jscex-parser.js"></script>
+    <script type="text/javascript" src="./Love_files/jscex-jit.js"></script>
+    <script type="text/javascript" src="./Love_files/jscex-builderbase.min.js"></script>
+    <script type="text/javascript" src="./Love_files/jscex-async.min.js"></script>
+    <script type="text/javascript" src="./Love_files/jscex-async-powerpack.min.js"></script>
+    <script type="text/javascript" src="./Love_files/functions.js" charset="utf-8"></script>
+    <script type="text/javascript" src="./Love_files/love.js" charset="utf-8"></script>
+
+    <style>
+        /* ===== FONDO NOCTURNO ===== */
+        body {
+            margin: 0; padding: 0;
+            background: #04040f;
+            font-size: 20px;
+            font-family: 'Lato', sans-serif;
+            color: #f0e6d3;
+            overflow: auto;
+        }
+        #starfield {
+            position: fixed; top: 0; left: 0;
+            width: 100%; height: 100%;
+            z-index: 0; pointer-events: none;
+        }
+        #main, .section-wrapper {
+            position: relative; z-index: 1;
+        }
+
+        /* ===== ZONA ÁRBOL (original) ===== */
+        #wrap {
+            position: relative; margin: 0 auto;
+            width: 1100px; height: 680px; margin-top: 80px;
+        }
+        #text {
+            width: 420px; height: 500px;
+            left: 60px; top: 30px;
+            position: absolute; overflow: visible;
+        }
+        #code {
+            display: none;
+            font-size: 20px; line-height: 1.6;
+            font-family: 'Playfair Display', serif;
+            color: #f8e8d0;
+            text-shadow: 0 0 20px rgba(255,180,150,0.35);
+        }
+        #clock-box {
+            position: absolute; left: 60px; top: 560px;
+            font-size: 20px; display: none; color: #f0d8c0;
+        }
+        #clock-box a { font-size: 20px; text-decoration: none; color: #ffb5c8; }
+        #clock { margin-left: 5px; }
+        #clock .digit {
+            font-size: 30px; color: #ff8fab;
+            font-family: 'Playfair Display', serif;
+        }
+        #canvas { margin: 0 auto; width: 1100px; height: 680px; }
+        #error { margin: 0 auto; text-align: center; margin-top: 60px; display: none; color: #f0e6d3; }
+        .hand { cursor: pointer; }
+        .say { margin-left: 5px; }
+        .space { margin-right: 150px; }
+        a { color: #ffb5c8; font-size: 14px; }
+
+        /* ===== LAYOUT ===== */
+        .section-wrapper { max-width: 800px; margin: 0 auto; padding: 0 20px; }
+        .section-divider {
+            text-align: center; margin: 20px auto;
+            color: rgba(255,180,200,0.25); font-size: 20px;
+            letter-spacing: 14px; position: relative; z-index: 1;
+        }
+
+        /* ===== RELOJES ===== */
+        #dual-clocks {
+            display: flex; justify-content: center; align-items: center;
+            gap: 40px; margin: 50px auto 10px; padding: 32px 50px;
+            max-width: 580px;
+            background: rgba(255,255,255,0.03);
+            border: 1px solid rgba(255,180,200,0.12);
+            border-radius: 24px;
+            backdrop-filter: blur(12px);
+            box-shadow: 0 8px 40px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.06);
+            position: relative; z-index: 1;
+        }
+        .clock-card { text-align: center; }
+        .clock-city { font-size: 11px; color: rgba(255,180,200,0.5); letter-spacing: 1.5px; text-transform: uppercase; margin-bottom: 4px; }
+        .clock-label { font-size: 12px; font-weight: 300; color: rgba(240,220,200,0.6); margin-bottom: 8px; letter-spacing: 3px; text-transform: uppercase; }
+        .clock-time { font-size: 36px; font-weight: 700; font-family: 'Playfair Display', serif; color: #ffb5c8; letter-spacing: 3px; text-shadow: 0 0 20px rgba(255,100,150,0.45); }
+        .clock-hearts { font-size: 28px; animation: pulse 1.4s ease-in-out infinite; }
+        @keyframes pulse { 0%,100%{transform:scale(1);opacity:.8} 50%{transform:scale(1.25);opacity:1} }
+
+        /* ===== MAPA ===== */
+        #love-map-section { text-align: center; margin: 50px auto; position: relative; z-index: 1; }
+        #love-map-title {
+            font-family: 'Playfair Display', serif; font-style: italic;
+            font-size: 19px; color: rgba(255,200,215,0.8);
+            margin-bottom: 20px; letter-spacing: 0.5px;
+        }
+        #love-map-container {
+            display: inline-block; border-radius: 24px; overflow: hidden;
+            box-shadow: 0 0 0 1px rgba(255,150,180,0.12), 0 24px 70px rgba(0,0,0,0.6), 0 0 90px rgba(190,26,80,0.08);
+        }
+        #love-map { display: block; border-radius: 24px; }
+        #distance-label { margin-top: 16px; font-size: 14px; color: rgba(255,200,215,0.65); letter-spacing: 0.5px; }
+        #distance-label strong { color: #ffb5c8; font-family: 'Playfair Display', serif; font-size: 16px; }
+
+        /* ===== BOTÓN TE AMO ===== */
+        #love-btn-section { text-align: center; margin: 50px auto 90px; position: relative; z-index: 1; }
+        #love-btn {
+            background: linear-gradient(135deg, rgba(190,26,80,0.75), rgba(232,93,122,0.75));
+            color: #fff; border: 1px solid rgba(255,150,180,0.25);
+            padding: 18px 54px; font-size: 20px; border-radius: 60px;
+            cursor: pointer; font-family: 'Playfair Display', serif;
+            letter-spacing: 1px; backdrop-filter: blur(8px);
+            box-shadow: 0 6px 30px rgba(190,26,80,0.35), 0 0 50px rgba(190,26,80,0.12);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        #love-btn:hover { transform: scale(1.06) translateY(-3px); box-shadow: 0 14px 44px rgba(190,26,80,0.5), 0 0 70px rgba(190,26,80,0.18); }
+        #love-btn:active { transform: scale(0.97); }
+        #love-phrase {
+            margin-top: 24px; font-size: 21px;
+            font-family: 'Playfair Display', italic serif; font-style: italic;
+            color: #ffccd8; min-height: 40px; padding: 0 30px;
+            text-shadow: 0 0 24px rgba(255,100,150,0.3);
+            animation: fadeUp 0.6s ease;
+        }
+        @keyframes fadeUp { from{opacity:0;transform:translateY(14px)} to{opacity:1;transform:translateY(0)} }
+
+        /* ===== SPOTIFY ===== */
+        #spotify-player {
+            position: fixed; bottom: 20px; right: 20px; z-index: 9999;
+            border-radius: 14px; overflow: hidden;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.6), 0 0 0 1px rgba(255,255,255,0.07);
+        }
+
+        /* ===== NIEVE EN LOS LATERALES (romántica rojo y blanco) ===== */
+        .snowflake {
+            position: fixed;
+            top: -10px;
+            z-index: 9997;
+            user-select: none;
+            pointer-events: none;
+            animation: fall linear infinite;
+            font-size: 20px;
+            text-shadow: 0 0 5px rgba(255, 255, 255, 0.5);
+        }
+        
+        @keyframes fall {
+            to {
+                transform: translateY(100vh) rotate(360deg);
+                opacity: 0;
+            }
+        }
+        
+        @keyframes sway {
+            0%, 100% { transform: translateX(0); }
+            50% { transform: translateX(20px); }
+        }
+    </style>
+</head>
+
+<body>
+    <canvas id="starfield"></canvas>
+
+    <div id="main">
+        <div id="error">
+            Tu navegador no es compatible. Por favor usa
+            <a href="http://www.google.cn/chrome">Chrome</a> o
+            <a href="http://firefox.com">Firefox</a>.
+        </div>
+        <div id="wrap">
+            <div id="text">
+                <div id="code">
+                    <span class="say">Para ti, mi único amor verdadero:</span><br><br>
+                    <span class="say">Millones de kilómetros nos separan, pero cada día me confirman que lo nuestro es real, que lo nuestro es para siempre.</span><br>
+                    <span class="say">No busco a nadie más. Te elegí a ti, con la distancia, con la espera, con todo.</span><br>
+                    <span class="say">Porque amarte desde lejos me enseñó que un amor verdadero no necesita estar cerca para ser eterno.</span><br>
+                    <span class="say">Solo quiero un día despertar a tu lado y no tener que despedirme más.</span>
+                    <span class="say"><span class="space"></span> — Siempre tuyo, desde aquí hasta donde estés.</span>
+                </div>
+            </div>
+            <div id="clock-box">
+                <a href="https://alexxdev.vercel.app/" target="_blank">Mi amor</a>
+                <a href="https://alexxdev.vercel.app/" target="_blank">por ti</a> comenzo hace...
+                <div id="clock"></div>
+            </div>
+            <canvas id="canvas" width="1100" height="680"></canvas>
+        </div>
+    </div>
+
+    <!-- RELOJES -->
+    <div class="section-wrapper">
+        <div class="section-divider">· · · ✦ · · ·</div>
+        <div id="dual-clocks">
+            <div class="clock-card">
+                <div class="clock-city">El Triunfo, Ecuador</div>
+                <div class="clock-label">Tu Bombón</div>
+                <div class="clock-time" id="clock-ec">--:--:--</div>
+            </div>
+            <div class="clock-hearts">💕</div>
+            <div class="clock-card">
+                <div class="clock-city">Curico, Chile</div>
+                <div class="clock-label">Mi Niña Consentida</div>
+                <div class="clock-time" id="clock-cl">--:--:--</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MAPA -->
+    <div class="section-wrapper">
+        <div class="section-divider">· · · ✦ · · ·</div>
+        <div id="love-map-section">
+            <div id="love-map-title">Nos separan kilometros, pero nada nos separa a nosotros</div>
+            <div id="love-map-container">
+                <canvas id="love-map" width="740" height="480"></canvas>
+            </div>
+            <div id="distance-label">La distancia entre nosotros es de <strong>3.247 km</strong> — pero nuestros corazones siempre estan juntos 💞</div>
+        </div>
+    </div>
+
+    <!-- BOTÓN TE AMO -->
+    <div class="section-wrapper">
+        <div class="section-divider">· · · ✦ · · ·</div>
+        <div id="love-btn-section">
+            <button id="love-btn" onclick="showLovePhrase()">💖 Cuanto te amo?</button>
+            <div id="love-phrase"></div>
+        </div>
+    </div>
+
+    <!-- SPOTIFY -->
+    <div id="spotify-player">
+        <iframe src="https://open.spotify.com/embed/playlist/3IJ1Pq4IXV88cYf4WI9wOe?utm_source=generator&theme=0"
+            width="300" height="80" frameborder="0" allowtransparency="true"
+            allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
+            loading="lazy"></iframe>
+    </div>
+
+    <script>
+    /* ============ STARFIELD ============ */
+    (function(){
+        var c = document.getElementById("starfield");
+        var ctx = c.getContext("2d");
+        var stars = [];
+        var W, H;
+        function resize(){ W = c.width = window.innerWidth; H = c.height = window.innerHeight; }
+        resize();
+        window.addEventListener("resize", resize);
+        for(var i=0;i<200;i++) stars.push({x:Math.random(),y:Math.random(),r:Math.random()*1.4+0.2,a:Math.random()*0.5+0.3,d:(Math.random()-0.5)*0.007,sp:Math.random()*0.00007+0.00002});
+        for(var j=0;j<20;j++) stars.push({x:Math.random(),y:Math.random(),r:Math.random()*2.2+1.2,a:Math.random()*0.4+0.6,d:(Math.random()-0.5)*0.01,sp:Math.random()*0.00004+0.00001,glow:true});
+        function draw(){
+            ctx.clearRect(0,0,W,H);
+            var bg=ctx.createLinearGradient(0,0,0,H);
+            bg.addColorStop(0,"#03030d"); bg.addColorStop(0.5,"#070714"); bg.addColorStop(1,"#0d051a");
+            ctx.fillStyle=bg; ctx.fillRect(0,0,W,H);
+            for(var i=0;i<stars.length;i++){
+                var s=stars[i];
+                s.a+=s.d; if(s.a>0.95||s.a<0.1) s.d*=-1;
+                s.x+=s.sp; if(s.x>1) s.x=0;
+                var px=s.x*W, py=s.y*H;
+                if(s.glow){
+                    var g=ctx.createRadialGradient(px,py,0,px,py,s.r*6);
+                    g.addColorStop(0,"rgba(255,215,230,"+s.a+")");
+                    g.addColorStop(0.4,"rgba(255,180,210,"+(s.a*0.3)+")");
+                    g.addColorStop(1,"rgba(255,180,210,0)");
+                    ctx.beginPath(); ctx.arc(px,py,s.r*6,0,Math.PI*2);
+                    ctx.fillStyle=g; ctx.fill();
+                }
+                ctx.beginPath(); ctx.arc(px,py,s.r,0,Math.PI*2);
+                ctx.fillStyle="rgba(255,242,248,"+s.a+")"; ctx.fill();
+            }
+            requestAnimationFrame(draw);
+        }
+        draw();
+    })();
+
+    /* ============ RELOJES ============ */
+    function updateClocks(){
+        var now=new Date();
+        var ec=new Date(now.toLocaleString("en-US",{timeZone:"America/Guayaquil"}));
+        var cl=new Date(now.toLocaleString("en-US",{timeZone:"America/Santiago"}));
+        document.getElementById("clock-ec").textContent=fmt(ec);
+        document.getElementById("clock-cl").textContent=fmt(cl);
+    }
+    function fmt(d){ return String(d.getHours()).padStart(2,"0")+":"+String(d.getMinutes()).padStart(2,"0")+":"+String(d.getSeconds()).padStart(2,"0"); }
+    setInterval(updateClocks,1000); updateClocks();
+
+    /* ============ MAPA ROMÁNTICO ============ */
+    window.addEventListener("load",function(){
+        var canvas=document.getElementById("love-map");
+        var ctx=canvas.getContext("2d");
+        var W=canvas.width, H=canvas.height;
+
+        function toXY(lat,lon){
+            var x=(lon-(-82))/((-63)-(-82))*W;
+            var y=(1-(lat-(-56))/(13-(-56)))*H;
+            return{x:x,y:y};
+        }
+
+        // Fondo nocturno del mapa
+        var bg=ctx.createLinearGradient(0,0,W,H);
+        bg.addColorStop(0,"#050a18"); bg.addColorStop(0.5,"#080e22"); bg.addColorStop(1,"#0c0618");
+        ctx.fillStyle=bg;
+        ctx.beginPath(); ctx.roundRect(0,0,W,H,20); ctx.fill();
+
+        var ec=toXY(-2.27,-79.47);
+        var cl=toXY(-34.98,-71.23);
+
+        // Luces de ciudad suaves
+        var gec=ctx.createRadialGradient(ec.x,ec.y,0,ec.x,ec.y,140);
+        gec.addColorStop(0,"rgba(255,130,160,0.14)"); gec.addColorStop(1,"rgba(255,130,160,0)");
+        ctx.fillStyle=gec; ctx.fillRect(0,0,W,H);
+
+        var gcl=ctx.createRadialGradient(cl.x,cl.y,0,cl.x,cl.y,140);
+        gcl.addColorStop(0,"rgba(180,130,255,0.14)"); gcl.addColorStop(1,"rgba(180,130,255,0)");
+        ctx.fillStyle=gcl; ctx.fillRect(0,0,W,H);
+
+        // Océano
+        var ocean=ctx.createLinearGradient(0,0,W,H);
+        ocean.addColorStop(0,"rgba(15,35,90,0.5)"); ocean.addColorStop(1,"rgba(8,18,55,0.4)");
+        ctx.fillStyle=ocean;
+        ctx.beginPath(); ctx.roundRect(3,3,W-6,H-6,18); ctx.fill();
+
+        // Silueta de Sudamérica
+        var coast=[
+            [12.2,-71.9],[11.7,-70.2],[11.1,-63.9],[10.6,-62.0],[10.0,-61.8],
+            [9.7,-60.7],[8.6,-60.0],[7.4,-60.6],[6.8,-61.0],[6.0,-61.3],
+            [5.0,-60.7],[4.0,-51.6],[3.3,-52.3],[2.2,-52.6],[1.5,-50.8],
+            [0.7,-50.3],[0.0,-50.2],[-1.5,-48.7],[-2.5,-44.7],[-4.0,-37.0],
+            [-5.5,-35.2],[-8.0,-34.9],[-10.0,-36.5],[-12.0,-37.9],[-14.0,-38.9],
+            [-16.0,-38.9],[-18.0,-39.5],[-20.0,-40.6],[-23.0,-43.4],[-25.0,-47.9],
+            [-28.0,-48.7],[-30.0,-51.0],[-32.0,-52.0],[-33.5,-53.4],[-34.9,-57.6],
+            [-36.0,-56.9],[-38.0,-57.5],[-40.0,-62.1],[-41.8,-65.0],[-43.5,-65.5],
+            [-45.0,-65.6],[-47.0,-66.0],[-49.0,-67.7],[-51.0,-69.2],[-52.5,-68.5],
+            [-54.0,-66.5],[-55.0,-65.5],[-55.0,-64.5],[-53.5,-57.5],[-50.0,-57.0],
+            [-47.0,-52.5],[-44.0,-49.0],[-42.0,-74.0],[-40.0,-73.8],[-38.0,-73.6],
+            [-36.0,-72.8],[-34.5,-71.7],[-33.0,-71.6],[-30.0,-71.4],[-27.0,-70.8],
+            [-24.0,-70.5],[-21.0,-70.1],[-18.3,-70.4],[-17.0,-71.3],[-16.0,-73.6],
+            [-15.0,-75.1],[-14.0,-75.6],[-13.5,-76.2],[-10.0,-78.2],[-8.0,-79.3],
+            [-6.0,-80.9],[-4.5,-81.3],[-3.3,-80.0],[-2.2,-80.9],[-1.4,-80.7],
+            [-0.3,-80.1],[0.5,-79.8],[1.5,-78.8],[2.0,-77.5],[3.0,-77.0],
+            [5.0,-77.2],[7.0,-77.4],[8.6,-77.0],[9.5,-76.3],[10.8,-74.9],
+            [11.7,-73.2],[12.2,-71.9]
+        ];
+
+        // Sombra del continente
+        ctx.save();
+        ctx.shadowColor="rgba(150,80,200,0.25)"; ctx.shadowBlur=20;
+        ctx.beginPath();
+        var p0=toXY(coast[0][0],coast[0][1]); ctx.moveTo(p0.x,p0.y);
+        for(var i=1;i<coast.length;i++){ var p=toXY(coast[i][0],coast[i][1]); ctx.lineTo(p.x,p.y); }
+        ctx.closePath();
+        var land=ctx.createLinearGradient(0,0,W,H);
+        land.addColorStop(0,"rgba(45,70,40,0.8)"); land.addColorStop(1,"rgba(30,50,30,0.7)");
+        ctx.fillStyle=land; ctx.fill();
+        ctx.restore();
+
+        // Borde del continente
+        ctx.beginPath();
+        p0=toXY(coast[0][0],coast[0][1]); ctx.moveTo(p0.x,p0.y);
+        for(var i=1;i<coast.length;i++){ var p=toXY(coast[i][0],coast[i][1]); ctx.lineTo(p.x,p.y); }
+        ctx.closePath();
+        ctx.strokeStyle="rgba(120,200,120,0.3)"; ctx.lineWidth=1.2; ctx.stroke();
+
+        // Estrellas del fondo del mapa
+        for(var s=0;s<40;s++){
+            ctx.beginPath();
+            ctx.arc(Math.random()*W,Math.random()*H,Math.random()*0.9+0.2,0,Math.PI*2);
+            ctx.fillStyle="rgba(255,245,252,"+(Math.random()*0.4+0.15)+")"; ctx.fill();
+        }
+
+        // Curva de conexión — halo
+        var mx=(ec.x+cl.x)/2-20, my=Math.min(ec.y,cl.y)-90;
+        ctx.save();
+        ctx.shadowColor="rgba(255,100,150,0.5)"; ctx.shadowBlur=16;
+        ctx.beginPath(); ctx.moveTo(ec.x,ec.y); ctx.quadraticCurveTo(mx,my,cl.x,cl.y);
+        ctx.strokeStyle="rgba(255,140,175,0.18)"; ctx.lineWidth=10; ctx.stroke();
+        ctx.restore();
+
+        // Curva principal punteada brillante
+        ctx.save();
+        ctx.shadowColor="rgba(255,170,200,0.9)"; ctx.shadowBlur=8;
+        ctx.beginPath(); ctx.moveTo(ec.x,ec.y); ctx.quadraticCurveTo(mx,my,cl.x,cl.y);
+        ctx.strokeStyle="rgba(255,195,215,0.95)"; ctx.lineWidth=2;
+        ctx.setLineDash([5,5]); ctx.stroke(); ctx.setLineDash([]);
+        ctx.restore();
+
+        // Corazón en el punto medio
+        var hx=0.25*ec.x+0.5*mx+0.25*cl.x;
+        var hy=0.25*ec.y+0.5*my+0.25*cl.y;
+        ctx.font="26px serif"; ctx.fillText("💕",hx-13,hy+9);
+
+        // Marcador Tú (Ecuador) — rosa
+        var g1=ctx.createRadialGradient(ec.x,ec.y,0,ec.x,ec.y,24);
+        g1.addColorStop(0,"rgba(255,90,140,0.45)"); g1.addColorStop(1,"rgba(255,90,140,0)");
+        ctx.fillStyle=g1; ctx.beginPath(); ctx.arc(ec.x,ec.y,24,0,Math.PI*2); ctx.fill();
+        ctx.save(); ctx.shadowColor="rgba(255,90,140,1)"; ctx.shadowBlur=16;
+        ctx.beginPath(); ctx.arc(ec.x,ec.y,8,0,Math.PI*2);
+        ctx.fillStyle="#ff5a8c"; ctx.fill();
+        ctx.strokeStyle="rgba(255,225,235,0.95)"; ctx.lineWidth=2; ctx.stroke();
+        ctx.restore();
+        ctx.save(); ctx.shadowColor="rgba(0,0,0,0.9)"; ctx.shadowBlur=5;
+        ctx.font="bold 13px 'Lato',sans-serif"; ctx.fillStyle="#ffccd8";
+        ctx.fillText("✦ Tu Bombón",ec.x+13,ec.y-10);
+        ctx.font="11px 'Lato',sans-serif"; ctx.fillStyle="rgba(255,200,215,0.65)";
+        ctx.fillText("El Triunfo",ec.x+13,ec.y+4); ctx.restore();
+
+        // Marcador Ella (Chile) — lavanda
+        var g2=ctx.createRadialGradient(cl.x,cl.y,0,cl.x,cl.y,24);
+        g2.addColorStop(0,"rgba(190,130,255,0.45)"); g2.addColorStop(1,"rgba(190,130,255,0)");
+        ctx.fillStyle=g2; ctx.beginPath(); ctx.arc(cl.x,cl.y,24,0,Math.PI*2); ctx.fill();
+        ctx.save(); ctx.shadowColor="rgba(190,130,255,1)"; ctx.shadowBlur=16;
+        ctx.beginPath(); ctx.arc(cl.x,cl.y,8,0,Math.PI*2);
+        ctx.fillStyle="#be82ff"; ctx.fill();
+        ctx.strokeStyle="rgba(235,220,255,0.95)"; ctx.lineWidth=2; ctx.stroke();
+        ctx.restore();
+        ctx.save(); ctx.shadowColor="rgba(0,0,0,0.9)"; ctx.shadowBlur=5;
+        ctx.font="bold 13px 'Lato',sans-serif"; ctx.fillStyle="#ddbfff";
+        ctx.fillText("✦ Mi Niña Consentida",cl.x+13,cl.y-10);
+        ctx.font="11px 'Lato',sans-serif"; ctx.fillStyle="rgba(210,180,255,0.65)";
+        ctx.fillText("Curico",cl.x+13,cl.y+4); ctx.restore();
+
+        // Marco decorativo
+        ctx.strokeStyle="rgba(255,150,180,0.1)"; ctx.lineWidth=1;
+        ctx.beginPath(); ctx.roundRect(2,2,W-4,H-4,19); ctx.stroke();
+    });
+
+    /* ============ BOTÓN TE AMO ============ */
+    var phrases=[
+        "Te amo más que todas las estrellas de este cielo nocturno ✨",
+        "Te amo tanto que 3.247 km se sienten como nada 🌍💕",
+        "Te amo hoy, mañana y en todas las vidas que vengan 💖",
+        "Te amo con cada latido de mi corazón, sin excepción 💓",
+        "Te amo más de lo que las palabras pueden expresar 🥺",
+        "Te amo desde el primer día y te amaré hasta el último 🌹",
+        "Te amo más que ayer, menos que mañana... así, infinito 🔁❤️",
+        "Te amo aunque estés lejos, porque mi corazón siempre está contigo 💫",
+        "Te amo y te elegiría en cada universo paralelo 🌌",
+        "Te amo más de lo que la distancia puede medir 📏❤️‍🔥",
+        "Te amo con la intensidad de mil soles ardiendo por ti ☀️💕",
+        "Te amo y contigo el tiempo se detiene, solo existimos tú y yo 🕰️❤️",
+        "Te amo tanto que mi alma te reconocería en cualquier vida 🌟",
+        "Te amo y cada segundo sin ti se siente como una eternidad ⏳💔",
+        "Te amo con un amor que ni la muerte podría apagar 🔥❤️",
+        "Te amo y eres la razón por la que creo en los milagros ✨💖",
+        "Te amo tanto que hasta el universo conspiró para juntarnos 🌌💫",
+        "Te amo y contigo aprendí que el amor verdadero sí existe 💍❤️",
+        "Te amo más allá del horizonte, más allá del infinito 🌅💕",
+        "Te amo y sería capaz de cruzar océanos solo para verte sonreír 🌊😊",
+        "Te amo con cada fibra de mi ser, completamente y para siempre 💪❤️",
+        "Te amo y tu amor es mi refugio, mi paz, mi hogar 🏡💖",
+        "Te amo tanto que mi felicidad depende de la tuya 😌💕",
+        "Te amo y eres el sueño más hermoso que se hizo realidad 💭✨",
+        "Te amo con un amor eterno que trasciende el tiempo y el espacio ⚡💖",
+        "Te amo y contigo descubrí que el paraíso sí existe en la Tierra 🌺❤️",
+        "Te amo más que a mi propia vida, eres mi todo 🌹💕",
+        "Te amo y cada día que pasa te amo más que el anterior 📆❤️",
+        "Te amo con la certeza de que nacimos para estar juntos 👫💖",
+        "Te amo y eres la mejor decisión que he tomado en mi vida ✅❤️"
+    ];
+    var lastIdx=-1;
+    function showLovePhrase(){
+        var idx; do{ idx=Math.floor(Math.random()*phrases.length); }while(idx===lastIdx);
+        lastIdx=idx;
+        var el=document.getElementById("love-phrase");
+        el.style.animation="none"; void el.offsetHeight; el.style.animation="fadeUp 0.6s ease";
+        el.textContent=phrases[idx];
+        for(var i=0;i<8;i++) spawnHeart();
+    }
+    function spawnHeart(){
+        var btn=document.getElementById("love-btn");
+        var rect=btn.getBoundingClientRect();
+        var h=document.createElement("span");
+        var em=["❤️","💕","💖","✨","💗","🌟","💫"];
+        h.textContent=em[Math.floor(Math.random()*em.length)];
+        h.style.cssText="position:fixed;font-size:"+(16+Math.random()*14)+"px;pointer-events:none;z-index:9998;"+
+            "left:"+(rect.left+rect.width/2+(Math.random()-0.5)*120)+"px;"+
+            "top:"+(rect.top-10+(Math.random()-0.5)*20)+"px;"+
+            "transition:all 1.2s ease;opacity:1;";
+        document.body.appendChild(h);
+        setTimeout(function(){ h.style.top=(parseFloat(h.style.top)-100-Math.random()*80)+"px"; h.style.opacity="0"; },50);
+        setTimeout(function(){ h.remove(); },1300);
+    }
+    </script>
+
+    <!-- Script para nieve romántica en los laterales -->
+    <script>
+    // Crear copos de nieve en los laterales (blanca y roja)
+    function createSnowflake() {
+        var snowflake = document.createElement('div');
+        snowflake.className = 'snowflake';
+        
+        // Copos blancos y rojos alternados
+        var symbols = ['❄', '❅', '❆'];
+        var colors = ['#ffffff', '#ff6b8a', '#ffb5c8', '#ffffff', '#ffffff']; // Más blancos que rojos
+        
+        var symbol = symbols[Math.floor(Math.random() * symbols.length)];
+        var color = colors[Math.floor(Math.random() * colors.length)];
+        
+        snowflake.innerHTML = symbol;
+        snowflake.style.color = color;
+        snowflake.style.fontSize = (15 + Math.random() * 15) + 'px';
+        
+        // Posicionar en los laterales (izquierda o derecha)
+        var isLeft = Math.random() < 0.5;
+        if (isLeft) {
+            // Lateral izquierdo (0-15% del ancho)
+            snowflake.style.left = Math.random() * 15 + '%';
+        } else {
+            // Lateral derecho (85-100% del ancho)
+            snowflake.style.left = (85 + Math.random() * 15) + '%';
+        }
+        
+        // Duración y delay aleatorios
+        var duration = 8 + Math.random() * 12; // 8-20 segundos
+        var delay = Math.random() * 5;
+        
+        snowflake.style.animationDuration = duration + 's';
+        snowflake.style.animationDelay = delay + 's';
+        
+        // Agregar un poco de movimiento lateral
+        snowflake.style.animation = 'fall ' + duration + 's linear ' + delay + 's infinite';
+        
+        document.body.appendChild(snowflake);
+        
+        // Eliminar después de que caiga
+        setTimeout(function() {
+            snowflake.remove();
+        }, (duration + delay) * 1000);
+    }
+    
+    // Crear copos continuamente
+    setInterval(createSnowflake, 300); // Cada 300ms
+    
+    // Crear copos iniciales
+    for (var i = 0; i < 30; i++) {
+        setTimeout(createSnowflake, i * 200);
+    }
+    </script>
+
+    <script src="script.js"></script>
+</body>
+</html>
